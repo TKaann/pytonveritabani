@@ -1,0 +1,124 @@
+import mysql.connector
+
+from classlar import *
+
+class Tur():
+    def __init__(self, tur_id , tur_adi , tur_yasadigi_kita , tur_beslenme_sekli , tur_bakim_saati):
+        self.id = tur_id
+        self.adi = tur_adi
+        self.yasadigi_kita = tur_yasadigi_kita
+        self.beslenme_sekli = tur_beslenme_sekli
+        self.bakim_saati = tur_bakim_saati
+
+    def __str__(self):
+        return self.id + "-" + self.adi + "-" + self.yasadigi_kita + "-" + self.beslenme_sekli + "-" + self.bakim_saati
+    def yazdir(self):
+        print("asd")
+
+class Bakici():
+    def __init__(self, bakici_id, bakici_isim, bakici_soyisim, bakici_calisma_saati, bakici_ev_adresi):
+        self.id = bakici_id
+        self.isim = bakici_isim
+        self.soyisim = bakici_soyisim
+        self.calisma_saati = bakici_calisma_saati
+        self.ev_adresi = bakici_ev_adresi
+
+    def __str__(self):
+        return self.id + "-" + self.isim + "-" + self.soyisim + "-" + self.calisma_saati + "-" + self.ev_adresi
+
+
+class Bilet():
+    def __init__(self, bilet_id, bilet_tarihi, bilet_turu):
+        self.id = bilet_id
+        self.tarihi = bilet_tarihi
+        self.turu = bilet_turu
+
+    def __str__(self):
+        return self.id + "-" + self.tarihi + "-" + self.turu
+
+
+class HayvanatBahcesi():
+    my_dict = {"hayvan_turleri": ["tur_id", "tur_adi", "tur_yasadigi_kita", "tur_beslenme_sekli", "tur_bakim_saati"]
+        , "bakicilar": ["bakici_id", "bakici_isim", "bakici_soyisim", "bakici_calisma_saati", "bakici_ev_adresi"],
+               "bilet": ["bilet_id", "bilet_tarihi", "bilet_turu"]}
+
+    def __init__(self):
+        self.cnx = mysql.connector.connect(user='root', password='zx.wp.1.',
+                              host='127.0.0.1',
+                              database='bp_20015221023')
+        self.mycursor = self.cnx.cursor()
+
+
+
+    def veriEkle(self, eleman):
+
+        if type(eleman) is Tur:
+
+            sql = "INSERT INTO hayvan_turleri (tur_id, tur_adi, tur_yasadigi_kita, tur_beslenme_sekli, tur_bakim_saati) VALUES (%s, %s,%s,%s,%s)"                   # veri ekleme
+            val = (eleman.id, eleman.adi, eleman.yasadigi_kita, eleman.beslenme_sekli, eleman.bakim_saati)                                                                               # veri ekleme
+            self.mycursor.execute(sql, val)                                                                                                                                        # veri ekleme
+            self.cnx.commit()                                                                                                                                     # veri ekleme
+            print(self.mycursor.rowcount, "record inserted.")                                                                                                                 # veri ekleme
+
+        elif type(eleman) is Bakici:
+            sql = "INSERT INTO bakicilar (bakici_id, bakici_isim, bakici_soyisim, bakici_calisma_saati, bakici_ev_adresi) VALUES (%s, %s,%s,%s,%s)"  # veri ekleme
+            val = (eleman.id, eleman.isim, eleman.soyisim, eleman.calisma_saati, eleman.ev_adresi)  # veri ekleme
+            self.mycursor.execute(sql, val)  # veri ekleme
+            self.cnx.commit()  # veri ekleme
+            print(self.mycursor.rowcount, "record inserted.")  # veri ekleme
+
+        else :
+            sql = "INSERT INTO bilet (bilet_id, bilet_tarihi, bilet_turu) VALUES (%s, %s,%s)"  # veri ekleme
+            val = (eleman.id, eleman.tarihi, eleman.turu)  # veri ekleme
+            self.mycursor.execute(sql, val)  # veri ekleme
+            self.cnx.commit()  # veri ekleme
+            print(self.mycursor.rowcount, "record inserted.")  # veri ekleme
+
+
+    def veriGetir(self ):
+        print("hayvan_turleri \n bakicilar \n bilet")
+        verigetir = input("Verilerini Istediginiz Tablonun adini duzgunce yaziniz : ")
+        self.mycursor.execute("SELECT * FROM " + verigetir)  # veri cagirma
+        myresult = self.mycursor.fetchall()  # veri cagirma
+        for x in myresult:  # veri cagirma
+            print(x)  # veri cagirma
+
+
+    def idVeriGetir(self):
+
+
+        print("hayvan_turleri \n bakicilar \n bilet")
+        verigetir = input("Verilerini Istediginiz Tablonun adini duzgunce yaziniz : ")
+        idgetir = input("Hangi ID deki veriyi getirmek istiyorsunuz")
+        self.mycursor.execute(
+            "SELECT * FROM " + verigetir + " where " + self.my_dict[verigetir][0] + " = " + idgetir)  # idye goreveri cagirma
+        myresult = self.mycursor.fetchall()  # idye gore veri cagirma
+        for x in myresult:  # idye goreveri cagirma
+            print(x)  # idye gore veri cagirma
+
+
+    def veriGuncelle(self):
+
+        print("hayvan_turleri \n bakicilar \n bilet")
+        veriguncelle = input("Guncellemek Istediginiz Tabloyu Giriniz : ")
+        veriid = input("Hangi Id'ye sahip veriyi guncellemek istiyorsunuz : ")
+        eskiveri = input("Guncellemek Istedigniz veriyi yaziniz : ")
+        yeniveri = input("Yeni Veriyi Giriniz : ")
+        sql = " UPDATE " + veriguncelle + " set " + eskiveri + " = '" + yeniveri + "' WHERE " + self.my_dict[veriguncelle][
+            0] + " = " + veriid  # veri guncelleme
+        self.mycursor.execute(sql)  # veri guncelleme
+        self.cnx.commit()  # veri guncelleme
+        print(self.mycursor.rowcount, "record(s) affected")  # veri guncelleme
+
+
+    def veriSilme(self):
+        print("hayvan_turleri \n bakicilar \n bilet")
+        verisil = input("verisini silmek istediginiz tabloyu giriniz : ")
+        idsil = input("verisini silmek istediginiz id'yi giriniz : ")
+        sql = "DELETE FROM " + verisil + " WHERE " + self.my_dict[verisil][0] + " = " + idsil  # veri silme
+        print(sql)
+        self.mycursor.execute(str(sql))  # veri silme
+        self.cnx.commit()  # veri silme
+        print(self.mycursor.rowcount, "record(s) deleted")  # veri silme
+teyo = Tur(id=3)
+print(teyo.id)
